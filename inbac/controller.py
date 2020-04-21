@@ -172,10 +172,11 @@ class Controller():
         box: Tuple[int, int, int, int] = self.get_real_box(
             selected_box, self.model.current_image.size, self.model.canvas_image_dimensions)
         
-        while self.model.current_file + 1 < len(self.model.images):
+        for image_name in reversed(self.model.images):
+            image = Image.open(os.path.join(self.model.args.input_dir, image_name))
             new_filename: str = self.find_available_name(
                 self.model.args.output_dir, self.model.images[self.model.current_file])
-            saved_image: Image = self.model.current_image.copy().crop(box)
+            saved_image: Image = image.crop(box)
             if self.model.args.resize:
                 saved_image = saved_image.resize(
                     (self.model.args.resize[0], self.model.args.resize[1]), Image.LANCZOS)
@@ -183,7 +184,6 @@ class Controller():
                 new_filename, _ = os.path.splitext(new_filename)
             saved_image.save(os.path.join(self.model.args.output_dir, new_filename),
                              self.model.args.image_format, quality=self.model.args.image_quality)
-            self.next_image()
         self.clear_selection_box()
         return True
 
